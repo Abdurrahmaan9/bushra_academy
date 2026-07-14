@@ -20,6 +20,27 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Enrollment form (Netlify)
+
+The enrollment form uses **Netlify Forms**. A successful submit means Netlify **stored** the request — it does **not** send mail from anyone's Gmail **Sent** folder.
+
+### Where to find submissions
+
+1. Netlify dashboard → your site → **Forms** → `enrollment`
+2. Open a submission to see name, email, phone, experience, and message
+
+### Get email alerts in Gmail Inbox
+
+1. Netlify → **Forms** → enable **Form detection** (if asked), then redeploy
+2. **Configuration → Notifications → Form submission notifications** → **Add notification**
+3. Choose **Email notification**, form `enrollment`, recipient `Bushraa786academy@gmail.com`
+4. Check **Inbox** (and Spam) for messages from Netlify — not Gmail **Sent**
+
+### Notes
+
+- Works on the **live Netlify URL only**, not `localhost`
+- Reply to the student using the email address inside the submission
+
 ## Pages
 
 | Route | Description |

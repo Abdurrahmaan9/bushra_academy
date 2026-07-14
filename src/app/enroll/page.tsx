@@ -1,13 +1,38 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { submitEnrollment } from "@/lib/contact";
 
 export default function EnrollPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+
+    const result = await submitEnrollment({
+      name: String(formData.get("name") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+      experience: String(formData.get("experience") ?? "beginner"),
+      message: String(formData.get("message") ?? "").trim(),
+    });
+
+    setLoading(false);
+
+    if (result.success) {
+      setSubmitted(true);
+      form.reset();
+      return;
+    }
+
+    setError(result.message ?? "Unable to submit your enrollment request.");
   }
 
   return (
@@ -53,9 +78,20 @@ export default function EnrollPage() {
             </div>
           ) : (
             <form
+              name="enrollment"
+              method="POST"
+              data-netlify="true"
+              data-netlify-honeypot="bot-field"
               onSubmit={handleSubmit}
               className="rounded-xl border border-lesson-green/20 bg-white p-6 shadow-sm sm:p-8"
             >
+              <input type="hidden" name="form-name" value="enrollment" />
+              <p className="hidden">
+                <label>
+                  Don&apos;t fill this out:{" "}
+                  <input name="bot-field" />
+                </label>
+              </p>
               <h2 className="font-display text-xl font-semibold text-teal-deep">
                 Enrollment Form
               </h2>
@@ -63,6 +99,15 @@ export default function EnrollPage() {
                 Fill in your details and we&apos;ll get back to you about the
                 next cohort.
               </p>
+
+              {error && (
+                <p
+                  role="alert"
+                  className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                  {error}
+                </p>
+              )}
 
               <div className="mt-6 space-y-5">
                 <div>
@@ -77,7 +122,8 @@ export default function EnrollPage() {
                     name="name"
                     type="text"
                     required
-                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20"
+                    disabled={loading}
+                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20 disabled:opacity-60"
                     placeholder="Your full name"
                   />
                 </div>
@@ -94,7 +140,8 @@ export default function EnrollPage() {
                     name="email"
                     type="email"
                     required
-                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20"
+                    disabled={loading}
+                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20 disabled:opacity-60"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -110,8 +157,9 @@ export default function EnrollPage() {
                     id="phone"
                     name="phone"
                     type="tel"
-                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20"
-                    placeholder="+1 (555) 000-0000"
+                    disabled={loading}
+                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20 disabled:opacity-60"
+                    placeholder="+27 68 124 0015"
                   />
                 </div>
 
@@ -125,7 +173,8 @@ export default function EnrollPage() {
                   <select
                     id="experience"
                     name="experience"
-                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20"
+                    disabled={loading}
+                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20 disabled:opacity-60"
                   >
                     <option value="beginner">Beginner — New to Tajweed</option>
                     <option value="some">
@@ -151,7 +200,8 @@ export default function EnrollPage() {
                     id="message"
                     name="message"
                     rows={3}
-                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20"
+                    disabled={loading}
+                    className="mt-1.5 w-full rounded-lg border border-lesson-green/20 bg-cream px-4 py-2.5 text-sm outline-none transition focus:border-lesson-green focus:ring-2 focus:ring-lesson-green/20 disabled:opacity-60"
                     placeholder="Any questions or special requests?"
                   />
                 </div>
@@ -159,14 +209,14 @@ export default function EnrollPage() {
 
               <button
                 type="submit"
-                className="mt-8 w-full rounded-full bg-gold py-3 font-medium text-teal-deep transition hover:bg-gold-light"
+                disabled={loading}
+                className="mt-8 w-full rounded-full bg-gold py-3 font-medium text-teal-deep transition hover:bg-gold-light disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Submit Enrollment Request
+                {loading ? "Sending..." : "Submit Enrollment Request"}
               </button>
             </form>
           )}
 
-          {/* Program highlights */}
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {[
               { label: "Duration", value: "9 Months" },

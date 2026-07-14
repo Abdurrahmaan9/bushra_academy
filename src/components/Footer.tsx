@@ -60,10 +60,10 @@ export default function Footer() {
               Questions about enrollment or the program?
             </p>
             <a
-              href="mailto:bushra@bushraacademy.com"
+              href="mailto:Bushraa786academy@gmail.com"
               className="mt-2 inline-block text-sm text-gold hover:text-gold-light"
             >
-              bushra@bushraacademy.com
+              Bushraa786academy@gmail.com
             </a>
             <br />
             <WhatsAppLink
